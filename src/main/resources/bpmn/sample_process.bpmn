@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1710czj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.2.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <bpmn:message id="Message_0u88i33" name="Message_security" />
+  <bpmn:collaboration id="Collaboration_0lnm7op">
+    <bpmn:participant id="SampleCamundaProc" name="Тестовый процесс" processRef="SampleCamunda" />
+  </bpmn:collaboration>
+  <bpmn:process id="SampleCamunda" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Создана новая заявка">
+      <bpmn:outgoing>Flow_1umaeha</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_11llo7p" name="Изменить статус заявки внутри банка" camunda:asyncBefore="true" camunda:delegateExpression="${ChangeStatusDelegate}">
+      <bpmn:incoming>Flow_1n8869d</bpmn:incoming>
+      <bpmn:outgoing>Flow_0n02szb</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="Gateway_09xvdmn">
+      <bpmn:incoming>Flow_1umaeha</bpmn:incoming>
+      <bpmn:outgoing>Flow_1n8869d</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0dh8jvl</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:intermediateCatchEvent id="Event_0t3aubm" name="Решение СБ" camunda:asyncBefore="true">
+      <bpmn:incoming>Flow_0dh8jvl</bpmn:incoming>
+      <bpmn:outgoing>Flow_0c42twa</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0d0gy07" messageRef="Message_0u88i33" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:userTask id="SignOfferAndPayCommissionActivity" name="Подписать оферту и оплатить комиссию">
+      <bpmn:incoming>Flow_0n02szb</bpmn:incoming>
+      <bpmn:outgoing>Flow_0onw8ai</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_0elnt02" name="Решение СБ вынесено">
+      <bpmn:incoming>Flow_0c42twa</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_07zybi1" name="Вывести уведомление" camunda:asyncBefore="true" camunda:delegateExpression="${SendNotificationDelegate}">
+      <bpmn:incoming>Flow_0rf7f4x</bpmn:incoming>
+      <bpmn:outgoing>Flow_0asqout</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_0l0m4t9" name="Уведомление отправлено">
+      <bpmn:incoming>Flow_0asqout</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="Event_164xm0s" name="Оферта оплачена">
+      <bpmn:incoming>Flow_0onw8ai</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="Event_1ob5o7z" name="Каждые 30 секунд" cancelActivity="false" attachedToRef="SignOfferAndPayCommissionActivity">
+      <bpmn:outgoing>Flow_0rf7f4x</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_0vyj3ao">
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">30 * * * * ?</bpmn:timeCycle>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_1umaeha" sourceRef="StartEvent_1" targetRef="Gateway_09xvdmn" />
+    <bpmn:sequenceFlow id="Flow_1n8869d" sourceRef="Gateway_09xvdmn" targetRef="Activity_11llo7p" />
+    <bpmn:sequenceFlow id="Flow_0dh8jvl" sourceRef="Gateway_09xvdmn" targetRef="Event_0t3aubm" />
+    <bpmn:sequenceFlow id="Flow_0n02szb" sourceRef="Activity_11llo7p" targetRef="SignOfferAndPayCommissionActivity" />
+    <bpmn:sequenceFlow id="Flow_0c42twa" sourceRef="Event_0t3aubm" targetRef="Event_0elnt02" />
+    <bpmn:sequenceFlow id="Flow_0rf7f4x" sourceRef="Event_1ob5o7z" targetRef="Activity_07zybi1" />
+    <bpmn:sequenceFlow id="Flow_0asqout" sourceRef="Activity_07zybi1" targetRef="Event_0l0m4t9" />
+    <bpmn:sequenceFlow id="Flow_0onw8ai" sourceRef="SignOfferAndPayCommissionActivity" targetRef="Event_164xm0s" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0lnm7op">
+      <bpmndi:BPMNShape id="Participant_1ga4gze_di" bpmnElement="SampleCamundaProc" isHorizontal="true">
+        <dc:Bounds x="160" y="79" width="1020" height="471" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1umaeha_di" bpmnElement="Flow_1umaeha">
+        <di:waypoint x="295" y="317" />
+        <di:waypoint x="395" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1n8869d_di" bpmnElement="Flow_1n8869d">
+        <di:waypoint x="445" y="317" />
+        <di:waypoint x="540" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0dh8jvl_di" bpmnElement="Flow_0dh8jvl">
+        <di:waypoint x="420" y="342" />
+        <di:waypoint x="420" y="470" />
+        <di:waypoint x="572" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0n02szb_di" bpmnElement="Flow_0n02szb">
+        <di:waypoint x="640" y="317" />
+        <di:waypoint x="750" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0c42twa_di" bpmnElement="Flow_0c42twa">
+        <di:waypoint x="608" y="470" />
+        <di:waypoint x="742" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rf7f4x_di" bpmnElement="Flow_0rf7f4x">
+        <di:waypoint x="850" y="259" />
+        <di:waypoint x="850" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0asqout_di" bpmnElement="Flow_0asqout">
+        <di:waypoint x="900" y="140" />
+        <di:waypoint x="1002" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0onw8ai_di" bpmnElement="Flow_0onw8ai">
+        <di:waypoint x="850" y="317" />
+        <di:waypoint x="1002" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="259" y="299" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="239" y="342" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1obdhi6_di" bpmnElement="Activity_11llo7p">
+        <dc:Bounds x="540" y="277" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1jpidmg_di" bpmnElement="Gateway_09xvdmn">
+        <dc:Bounds x="395" y="292" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1g7m977_di" bpmnElement="Event_0t3aubm">
+        <dc:Bounds x="572" y="452" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="559" y="495" width="65" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1yah63b_di" bpmnElement="SignOfferAndPayCommissionActivity">
+        <dc:Bounds x="750" y="277" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0elnt02_di" bpmnElement="Event_0elnt02">
+        <dc:Bounds x="742" y="452" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="728" y="495" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_06b10hq_di" bpmnElement="Activity_07zybi1">
+        <dc:Bounds x="800" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0k64tju_di" bpmnElement="Event_0l0m4t9">
+        <dc:Bounds x="1002" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="986" y="165" width="69" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_164xm0s_di" bpmnElement="Event_164xm0s">
+        <dc:Bounds x="1002" y="299" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="996" y="342" width="49" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0gcd6vt_di" bpmnElement="Event_1ob5o7z">
+        <dc:Bounds x="832" y="259" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="862" y="246" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

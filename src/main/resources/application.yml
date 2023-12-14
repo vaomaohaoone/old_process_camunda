@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: old-process-camunda
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=old_schema
+    username: admin
+    password: admin
+  sql:
+    init:
+      mode: always
+  jpa:
+    database: postgresql
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc.lob.non_contextual_creation: true
+  flyway:
+    schemas: old_schema
+    baseline-on-migrate: true
+    locations: db/migration
+
+camunda.bpm:
+  admin-user:
+    id: a
+    password: a
+    firstName: Admin
+  default-number-of-retries: 1
+  job-executor-acquire-by-priority: true
+  filter:
+    create: All tasks
+  database:
+    table_prefix: old_schema.
+  eventing:
+    task: true
+  generic-properties:
+    properties:
+      loggingContextBusinessKey: "custom.businessKey"
